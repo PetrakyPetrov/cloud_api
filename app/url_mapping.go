@@ -50,7 +50,7 @@ func BaseAuthMiddleware(c *gin.Context) {
 func mapUrls() {
 
 	router.GET("/ping", controllers.Ping)
-
+	router.POST("/users/:user_id/files/upload", controllers.UploadFiles)
 	// group: v1
 	v1 := router.Group("/api/v1")
 	{
