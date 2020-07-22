@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -69,8 +70,8 @@ func CreateUser(c *gin.Context) {
 	})
 }
 
-// GetUserByPassword ..
-func GetUserByPassword(c *gin.Context) {
+// GetUserByEmailPassword ..
+func GetUserByEmailPassword(c *gin.Context) {
 
 	var user models.User
 
@@ -107,10 +108,18 @@ func GetUserByPassword(c *gin.Context) {
 		return
 	}
 
-	result, err := user.GetByPass()
+	result, err := user.GetByEmailPass()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err,
+			"data":    []string{},
+		})
+		return
+	}
+
+	if len(result) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "User not found",
 			"data":    []string{},
 		})
 		return
@@ -126,7 +135,14 @@ func GetUserByPassword(c *gin.Context) {
 func GetUser(c *gin.Context) {
 
 	var user models.User
-	result, err := user.Get()
+	UserID := c.Param("user_id")
+	ID, err := strconv.ParseInt(UserID, 10, 64)
+	if err == nil {
+		fmt.Printf("%d of type %T", ID, ID)
+	}
+
+	user.ID = ID
+	result, err := user.GetByID()
 	if err != nil {
 		fmt.Println(err)
 	}

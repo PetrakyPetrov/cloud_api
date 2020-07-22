@@ -14,14 +14,14 @@ const StartedStorageGB = 5
 
 // User ...
 type User struct {
-	ID                 int64   `db:"id" json:"id"`
-	Email              string  `db:"email" json:"email"`
-	Password           string  `db:"password" json:"password"`
-	StorageGB          float64 `db:"storage_gb" json:"storage_gb"`
-	AvailableStorageGB float64 `db:"available_storage_gb" json:"available_storage_gb"`
-	Token              string  `db:"token" json:"token"`
-	CreateTs           int64   `db:"create_ts" json:"create_ts"`
-	UpdateTs           int64   `db:"update_ts" json:"update_ts"`
+	ID            int64   `db:"id" json:"id"`
+	Email         string  `db:"email" json:"email"`
+	Password      string  `db:"password" json:"password"`
+	StorageGB     float64 `db:"storage_gb" json:"storage_gb"`
+	UsedStorageGB float64 `db:"used_storage_gb" json:"used_storage_gb"`
+	Token         string  `db:"token" json:"token"`
+	CreateTs      int64   `db:"create_ts" json:"create_ts"`
+	UpdateTs      int64   `db:"update_ts" json:"update_ts"`
 }
 
 var dbmap = libs.DBmap
@@ -30,6 +30,13 @@ var dbmap = libs.DBmap
 func (u *User) Get() (user []User, err error) {
 
 	_, err = dbmap.Select(&user, "SELECT * FROM users")
+	return user, err
+}
+
+// GetByID ...
+func (u *User) GetByID() (user []User, err error) {
+
+	_, err = dbmap.Select(&user, "SELECT * FROM users WHERE id=?", u.ID)
 	return user, err
 }
 
@@ -44,7 +51,7 @@ func (u *User) Create() (user User, err error) {
 
 	u.Token = hex.EncodeToString(hasher.Sum(nil))
 	u.StorageGB = StartedStorageGB
-	u.AvailableStorageGB = StartedStorageGB
+	u.UsedStorageGB = 0
 	u.CreateTs = currentUnixTs
 	u.UpdateTs = currentUnixTs
 
@@ -53,13 +60,13 @@ func (u *User) Create() (user User, err error) {
 			email, 
 			password, 
 			storage_gb, 
-			available_storage_gb,
+			used_storage_gb,
 			token,
 			create_ts,
 			update_ts
 		) 
 		VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		u.Email, u.Password, u.StorageGB, u.AvailableStorageGB, u.Token, u.CreateTs, u.UpdateTs,
+		u.Email, u.Password, u.StorageGB, u.UsedStorageGB, u.Token, u.CreateTs, u.UpdateTs,
 	)
 
 	if err == nil {
@@ -69,10 +76,10 @@ func (u *User) Create() (user User, err error) {
 	return user, err
 }
 
-// GetByPass ...
-func (u *User) GetByPass() (user []User, err error) {
+// GetByEmailPass ...
+func (u *User) GetByEmailPass() (user []User, err error) {
 
-	_, err = dbmap.Select(&user, "select * from users where password=?", u.Password)
+	_, err = dbmap.Select(&user, "select * from users where password=? AND email=?", u.Password, u.Email)
 	return user, err
 }
 

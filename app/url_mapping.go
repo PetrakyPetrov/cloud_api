@@ -54,11 +54,12 @@ func mapUrls() {
 	// group: v1
 	v1 := router.Group("/api/v1")
 	{
-		v1.GET("/users/:user_id", controllers.GetUser)
+
 		v1.POST("/users", controllers.CreateUser)
-		v1.POST("/user/login", controllers.GetUserByPassword)
+		v1.POST("/user/login", controllers.GetUserByEmailPassword)
 
 		v1.Use(BaseAuthMiddleware)
-		v1.GET("/user/:user_id/files", controllers.GetFiles)
+		v1.GET("/users/:user_id/files", controllers.GetFiles)
+		v1.GET("/users/:user_id", controllers.GetUser)
 	}
 }
