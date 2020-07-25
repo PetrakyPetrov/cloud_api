@@ -50,7 +50,7 @@ func BaseAuthMiddleware(c *gin.Context) {
 func mapUrls() {
 
 	router.GET("/ping", controllers.Ping)
-	router.POST("/users/:user_id/files/upload", controllers.UploadFiles)
+
 	// group: v1
 	v1 := router.Group("/api/v1")
 	{
@@ -59,7 +59,13 @@ func mapUrls() {
 		v1.POST("/user/login", controllers.GetUserByEmailPassword)
 
 		v1.Use(BaseAuthMiddleware)
-		v1.GET("/users/:user_id/files", controllers.GetFiles)
+		v1.GET("/users/:user_id/files/folder/:folder_id", controllers.GetFiles)
 		v1.GET("/users/:user_id", controllers.GetUser)
+		v1.POST("/users/:user_id/files/upload/folder/:folder_id", controllers.UploadFiles)
+		v1.GET("/users/:user_id/files/download/:name", controllers.DownloadFiles)
+		v1.GET("/users/:user_id/folders", controllers.GetFolders)
+		v1.POST("/users/:user_id/folders", controllers.CreateFolders)
+		v1.DELETE("/users/:user_id/folders/:folder_id", controllers.DeleteFolders)
+		v1.DELETE("/users/:user_id/files/:file_id", controllers.DeleteFiles)
 	}
 }
